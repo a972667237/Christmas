@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+    <title>Title</title>
+    <link rel="stylesheet" href="/static/styles/weui.style.css">
+    <link rel="stylesheet" href="/static/styles/weui.css">
+    <link rel="stylesheet" href="/static/styles/giftList.css">
+</head>
+<body>
+        {% for gift in gifts %}
+        {% if gift.isExchange %}
+            <div class="weui-form-preview">
+                <div class="weui-form-preview__hd">
+                    <label class="weui-form-preview__label">礼物名称</label>
+                    <em class="weui-form-preview__value">{{ gift.name }}</em>
+                </div>
+                <div class="weui-form-preview__bd">
+                    <p>
+                        <label class="weui-form-preview__label">礼物ID</label>
+                        <span class="weui-form-preview__value">{{ gift.giftId }}</span>
+                    </p>
+                    <p>
+                        <label class="weui-form-preview__label">拥有者电话：</label>
+                        <span class="weui-form-preview__value">{{ gift.own.phone }}</span>
+                    </p>
+                    <p>
+                        <label class="weui-form-preview__label">是否匿名</label>
+                        <span class="weui-form-preview__value">{{ gift.isAnonymous }}</span>
+                    </p>
+                    <p>
+                        <label class="weui-form-preview__label">礼物类别</label>
+                        <span class="weui-form-preview__value">{{ gift.type }}</span>
+                    </p>
+                    <p>
+                        <label class="weui-form-preview__label">目标群体</label>
+                        <span class="weui-form-preview__value">{{ gift.exchangegift.aimGroup }}</span>
+                    </p>
+                    <p>
+                        <label class="weui-form-preview__label">所在宿舍区</label>
+                        <span class="weui-form-preview__value">{{ gift.own.area }}</span>
+                    </p>
+                </div>
+            </div>
+        {% else  %}
+            <div class="weui-form-preview">
+                <div class="weui-form-preview__hd">
+                    <label class="weui-form-preview__label">礼物名称</label>
+                    <em class="weui-form-preview__value">{{ gift.name }}</em>
+                </div>
+                <div class="weui-form-preview__bd">
+                    <p>
+                        <label class="weui-form-preview__label">礼物ID</label>
+                        <span class="weui-form-preview__value">{{ gift.giftId }}</span>
+                    </p>
+                    <p>
+                        <label class="weui-form-preview__label">您的电话：</label>
+                        <span class="weui-form-preview__value">{{ gift.own.phone }}</span>
+                    </p>
+                    <p>
+                        <label class="weui-form-preview__label">是否匿名</label>
+                        <span class="weui-form-preview__value">{{ gift.isAnonymous }}</span>
+                    </p>
+                    <p>
+                        <label class="weui-form-preview__label">被赠予人</label>
+                        <span class="weui-form-preview__value">{{ gift.givengift.givenPerson }}</span>
+                    </p>
+                    <p>
+                        <label class="weui-form-preview__label">被赠予人电话</label>
+                        <span class="weui-form-preview__value">{{ gift.givengift.givenPhone }}</span>
+                    </p>
+                    <p>
+                        <label class="weui-form-preview__label">被赠予人地址</label>
+                        <span class="weui-form-preview__value">{{ gift.givengift.givenAdress }}</span>
+                    </p>
+                </div>
+            </div>
+        {% endif %}
+    {% endfor %}
+    {% if gifts_count %}
+        <div class="add_title">
+            <h2 data-account="{{ gifts_count }}">您还可以添加{{ gifts_count }}个礼物</h2>
+        </div>
+        <div class="weui-btn-area">
+                <a class="weui-btn weui-btn_primary" href="javascript:;" id="gift-btn">点我添加礼物</a>
+        </div>
+    {% endif %}
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="/static/scripts/weui.js"></script>
+    <script>
+        $(function (){
+            $('#gift-btn').on('click', function (){
+                $.weui.actionSheet([{
+                    label: '交换礼物',
+                    onClick: function (){
+                        window.location.href="/exchange/";
+                    }
+                },{
+                    label: '送给指定人',
+                    onClick: function (){
+                        window.location.href="/given/";
+                    }
+                }]);
+            });
+        });
+        $(function () {
+            $a = $("h4");
+            if($a.length===1){
+                $.weui.topTips("您还没有礼物");
+            }
+        });
+    </script>
+</body>
+</html>
