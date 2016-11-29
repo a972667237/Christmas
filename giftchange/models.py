@@ -31,6 +31,7 @@ class GiftSystem_user(models.Model):
     name = models.CharField("名字", max_length=100)
     phone = models.CharField("手机", max_length=11, null=True)
     area = models.CharField("居住区域", max_length=1, choices=AREA, default=u'南区', null=True)
+    wechat = models.CharField("微信号", max_length=50, null=True)
     def __str__(self):
         return self.stu_no
     class Meta:
@@ -45,6 +46,7 @@ class Gift(models.Model):
     isAnonymous = models.BooleanField("匿名", default=False)
     own = models.ForeignKey("GiftSystem_user", null=True)
     isExchange = models.BooleanField("是否为交换礼物", default=True)
+    isUsed = models.BooleanField("是否已完成交换或赠与", default=False)
     def __str__(self):
         return self.name
     class Meta:
@@ -67,10 +69,10 @@ class ExchangeGift(models.Model):
 
 class ChangeResult(models.Model):
     exchangegift = models.OneToOneField("ExchangeGift", null=True)
-    wangGiftType = models.CharField("回礼类型", choices=GIFT_TYPE, max_length=15)
-    getGiftId = models.CharField("回礼ID", max_length=10)
+    wangGiftType = models.CharField("回礼类型", max_length=50)
+    getGiftId = models.CharField("回礼ID", max_length=10, null=True)
     def __str__(self):
-        return self.getGiftId
+        return self.exchangegift.gift.name
     class Meta:
         verbose_name = u'互换结果'
         verbose_name_plural = verbose_name

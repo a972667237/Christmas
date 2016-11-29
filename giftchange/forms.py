@@ -1,5 +1,5 @@
 from django import forms
-from .models import ExchangeGift, Gift, GiftSystem_user, GivenGift
+from .models import ExchangeGift, Gift, GiftSystem_user, GivenGift, ChangeResult
 from django.core.exceptions import ValidationError
 import re
 
@@ -21,7 +21,7 @@ class ExchangeForm(forms.ModelForm):
     aimGroup = forms.CharField(label="目标群体", max_length=6, required=True, error_messages={"required": u'目标群体不能为空'})
     def clean_aimGroup(self):
         aimGroup = self.cleaned_data["aimGroup"]
-        if not aimGroup or not (aimGroup=="female" or aimGroup=="male" or aimGroup=="both"):
+        if not aimGroup or not (aimGroup == "female" or aimGroup == "male" or aimGroup == "both"):
             raise ValidationError(u"赠予群体不正确")
         return aimGroup
     class Meta:
@@ -40,9 +40,10 @@ class GiftForm(forms.ModelForm):
         return type
     class Meta:
         model = Gift
-        exclude = ["id", "giftId", "own", "isExchange"]
+        exclude = ["id", "giftId", "own", "isExchange", "isUsed"]
 
 class UserForm(forms.ModelForm):
+    wechat = forms.CharField(label="微信号", max_length=50, required=False)
     def clean_phone(self):
         phone = self.cleaned_data["phone"]
         p = re.compile('^0\d{2,3}\d{7,8}$|^1[3578]\d{9}$|^147\d{8}')
@@ -56,4 +57,10 @@ class UserForm(forms.ModelForm):
         return area
     class Meta:
         model = GiftSystem_user
-        fields = ["phone", "area"]
+        fields = ["phone", "area", "wechat"]
+
+class ChangeForm(forms.ModelForm):
+    getGiftId = forms.CharField(label="交换结果", required=False)
+    class Meta:
+        model = ChangeResult
+        fields = ["wangGiftType", "getGiftId", "exchangegift"]

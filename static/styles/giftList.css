@@ -5,3 +5,7 @@
 .add_title h2{
     text-align: center;
 }
+#dialog-main{
+    height: 30rem;
+    overflow: scroll;
+}

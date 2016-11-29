@@ -22,5 +22,7 @@ urlpatterns = [
     url(r'^exchange/', views.ExchangeView.as_view(), name="exchange"),
     url(r'^given/', views.GivenView.as_view(), name="given"),
     url(r'^giftList/', views.giftList, name="giftList"),
-    url(r'^$', views.index, name="index")
+    url(r'^$', views.index, name="index"),
+    url(r'^giftResult/', views.resultList, name="giftResult"),
+    url(r'^postWantType', views.postWantType, name="postWantType"),
 ]

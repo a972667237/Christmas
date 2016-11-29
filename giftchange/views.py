@@ -1,39 +1,10 @@
 from django.shortcuts import render
-from rest_framework.views import APIView
-from rest_framework import status
-from rest_framework.response import Response
-from .serializers import Wechat_userSerializer
-from rest_framework.renderers import JSONRenderer
 from django.http import HttpResponse
-from rest_framework.renderers import TemplateHTMLRenderer
 from django.shortcuts import get_object_or_404
-from .serializers import ExchangeGiftSerializer
-from .models import ExchangeGift, Gift, GiftSystem_user, GivenGift
+from .models import ExchangeGift, Gift, GiftSystem_user, GivenGift, ChangeResult
 from django.views.generic import View
 from .forms import ExchangeForm, GiftForm, UserForm, GivenForm
 import json
-# Create your views here.
-''' get account api here  '''
-# class Wechat_View(APIView):
-#     def get(self, request, format=None):
-#         wechat_user = GiftSystem_user.objects.filter(stu_no="2015150006")
-#         serialzer = Wechat_userSerializer(wechat_user, many=True)
-#         return Response({"user_list": JSONRenderer().render(serialzer.data)})
-#     def post(self, request, format=None):
-#         serilizer = Wechat_userSerializer(data=request.data, many=True)
-#         if serilizer.is_valid():
-#             serilizer.save()
-#             return Response(serilizer.data, status=status.HTTP_201_CREATED)
-#         else:
-#             return Response(serilizer.data, status=status.HTTP_400_BAD_REQUEST)
-#
-#
-# class ExchangeGift_View(APIView):
-#     renderer_classes = [TemplateHTMLRenderer]
-#     template_name = 'addExchange.html'
-#     def get(self, request):
-#         serialzer = ExchangeGiftSerializer(ExchangeGift)
-#         return Response({'serializer': serialzer})
 
 class ExchangeView(View):
     def get(self, request):
@@ -133,7 +104,7 @@ class GivenView(View):
             t.own = currentUser
             t.isExchange = False
             t.save()
-            data = {'status': 'success', 'message':"您的礼物ID是:%s" % t.giftId }
+            data = {'status': 'success', 'message':"您的礼物ID是:%s" % t.giftId}
             return HttpResponse(json.dumps(data), content_type= 'application/json')
         given_message = [i for i in given.errors.values()]
         gift_message = [i for i in gift.errors.values()]
@@ -147,3 +118,60 @@ def giftList(request):
 
 def index(request):
     return render(request, 'index.html', locals())
+
+
+def resultList(request):
+    mygifts = Gift.objects.filter(own__stu_no="2015150003")
+    return render(request, "resultList.html", locals())
+
+def postWantType(request):
+    if request.method == "POST":
+        wantType = request.POST.getlist("wanttype[]")
+        giftId = request.POST["giftId"]
+        wanttypestring = ''
+        for i in wantType:
+            wanttypestring = wanttypestring + i + " "
+        stu_no = "2015150003"
+        gift = Gift.objects.get(giftId=giftId)
+        if gift.own.stu_no == stu_no and gift.isExchange:
+            try:
+                a = gift.exchangegift.changeresult
+                data = {"status": "resubmit", "message": "已绑定过想要的礼物类型"}
+                return HttpResponse(json.dumps(data), content_type="application/json")
+            except:
+                if not wanttypestring:
+                    data = {"status": "error", "message": "提交的类型为空"}
+                    return HttpResponse(json.dumps(data), content_type="application/json")
+                print (wanttypestring)
+                ChangeResult.objects.create(exchangegift=gift.exchangegift, wangGiftType=wanttypestring)
+                data = {"status": "success", "message": "成功添加想要的礼物类型"}
+                return HttpResponse(json.dumps(data), content_type="application/json")
+    data = {"status": "error", "message": "出了点不知道什么原因的错误呢= =、"}
+    return HttpResponse(json.dumps(data), content_type="application/json")
+
+# def postWantType(request):
+#     if request.method == "POST":
+#         wantType = request.POST["wanttype[]"]
+#         giftId = request.POST["giftId"]
+#         if not wantType or not giftId:
+#             data = {"status": "resubmit", "message": "重复提交了"}
+#             return HttpResponse(json.dumps(data), content_type="application/json")
+#         stu_no = "2015150003"
+#         gift = Gift.objects.get(giftId=giftId)
+#         if gift.own.stu_no == stu_no and gift.isExchange:
+#             thisTypeGifts = Gift.objects.filter(type=wantType, isUsed=False)
+#             if thisTypeGifts:
+#                 getGift = random.choice(thisTypeGifts)
+#                 if gift.exchangegift.changeresult.wangGiftType or gift.exchangegift.changeresult.getGiftId:
+#                     data = {"status": "error", "message": "你已经有礼物了"}
+#                     return HttpResponse(json.dumps(data), content_type="application/json")
+#                 gift.exchangegift.changeresult.wangGiftType = wantType
+#                 getId = getGift.giftId
+#                 gift.exchangegift.changeresult.getGiftId = getId
+#                 gift.exchangegift.changeresult.save()
+#                 data = {"status": "success", "message": "获取的礼物ID是" + getId}
+#                 return HttpResponse(json.dumps(data), content_type="application/json")
+#             data = {"status": "nogift", "message":"没有这种类别的礼物了"}
+#             return HttpResponse(json.dumps(data), content_type="application/json")
+#     data = {"status": "error", "message": "提交有误"}
+#     return HttpResponse(json.dumps(data), content_type="application/json")
